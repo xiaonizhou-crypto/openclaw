@@ -17,6 +17,7 @@ import {
   warnMissingProviderGroupPolicyFallbackOnce,
 } from "../../config/runtime-group-policy.js";
 import type { SessionScope } from "../../config/sessions.js";
+import { normalizeResolvedSecretInputString } from "../../config/types.secrets.js";
 import { warn } from "../../globals.js";
 import { computeBackoff, sleepWithAbort } from "../../infra/backoff.js";
 import { installRequestBodyLimitGuard } from "../../infra/http-body.js";
@@ -99,7 +100,10 @@ export async function monitorSlackProvider(opts: MonitorSlackOpts = {}) {
 
   const slackMode = opts.mode ?? account.config.mode ?? "socket";
   const slackWebhookPath = normalizeSlackWebhookPath(account.config.webhookPath);
-  const signingSecret = account.config.signingSecret?.trim();
+  const signingSecret = normalizeResolvedSecretInputString({
+    value: account.config.signingSecret,
+    path: `channels.slack.accounts.${account.accountId}.signingSecret`,
+  });
   const botToken = resolveSlackBotToken(opts.botToken ?? account.botToken);
   const appToken = resolveSlackAppToken(opts.appToken ?? account.appToken);
   if (!botToken || (slackMode !== "http" && !appToken)) {
@@ -148,6 +152,7 @@ export async function monitorSlackProvider(opts: MonitorSlackOpts = {}) {
   const slashCommand = resolveSlackSlashCommandConfig(opts.slashCommand ?? slackCfg.slashCommand);
   const textLimit = resolveTextChunkLimit(cfg, "slack", account.accountId);
   const ackReactionScope = cfg.messages?.ackReactionScope ?? "group-mentions";
+  const typingReaction = slackCfg.typingReaction?.trim() ?? "";
   const mediaMaxBytes = (opts.mediaMaxMb ?? slackCfg.mediaMaxMb ?? 20) * 1024 * 1024;
   const removeAckAfterReply = cfg.messages?.removeAckAfterReply ?? false;
 
@@ -246,6 +251,7 @@ export async function monitorSlackProvider(opts: MonitorSlackOpts = {}) {
     slashCommand,
     textLimit,
     ackReactionScope,
+    typingReaction,
     mediaMaxBytes,
     removeAckAfterReply,
   });

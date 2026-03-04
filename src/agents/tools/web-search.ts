@@ -1190,11 +1190,15 @@ async function runSearxngSearch(params: {
   baseUrl: string;
   count: number;
   timeoutSeconds: number;
+  language?: string;
 }): Promise<Array<{ title: string; url: string; description: string; siteName?: string }>> {
   const url = new URL("/search", params.baseUrl);
   url.searchParams.set("q", params.query);
   url.searchParams.set("format", "json");
   url.searchParams.set("pageno", "1");
+  if (params.language) {
+    url.searchParams.set("language", params.language);
+  }
 
   return withTrustedWebSearchEndpoint(
     {
@@ -1404,6 +1408,7 @@ async function runWebSearch(params: {
       baseUrl: params.searxngBaseUrl,
       count: params.count,
       timeoutSeconds: params.timeoutSeconds,
+      language: params.language,
     });
     const payload = {
       query: params.query,
@@ -1571,10 +1576,10 @@ export function createWebSearchTool(options?: {
         });
       }
       const language = readStringParam(params, "language");
-      if (language && provider !== "brave" && provider !== "perplexity") {
+      if (language && provider !== "brave" && provider !== "perplexity" && provider !== "searxng") {
         return jsonResult({
           error: "unsupported_language",
-          message: `language filtering is not supported by the ${provider} provider. Only Brave and Perplexity support language filtering.`,
+          message: `language filtering is not supported by the ${provider} provider. Only Brave, Perplexity, and SearXNG support language filtering.`,
           docs: "https://docs.openclaw.ai/tools/web",
         });
       }

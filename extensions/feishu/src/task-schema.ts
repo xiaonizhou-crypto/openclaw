@@ -228,7 +228,8 @@ export type RemoveTasklistMembersParams = {
 const TaskDateSchema = Type.Object({
   timestamp: Type.Optional(
     Type.String({
-      description: 'Unix timestamp in milliseconds (string), e.g. "1735689600000" (13-digit ms)',
+      description:
+        'Unix timestamp in milliseconds (13-digit string). MUST be UTC, not local time. Example: "1772629200000" = 2026-03-04 13:00 UTC. Anchor: 2026-01-01 00:00 UTC = "1767225600000".',
     }),
   ),
   is_all_day: Type.Optional(Type.Boolean({ description: "Whether this is an all-day date" })),
@@ -282,7 +283,12 @@ export const CreateTaskSchema = Type.Object({
       description: "Completion time as Unix timestamp in milliseconds (string, 13-digit ms)",
     }),
   ),
-  members: Type.Optional(Type.Array(TaskMemberSchema, { description: "Initial task members" })),
+  members: Type.Optional(
+    Type.Array(TaskMemberSchema, {
+      description:
+        "Task members. REQUIRED: always include at least one member with role=assignee (use the sender's open_id from Conversation info). Without an assignee, the task is invisible to the user.",
+    }),
+  ),
   repeat_rule: Type.Optional(Type.String({ description: "Task repeat rule" })),
   tasklists: Type.Optional(
     Type.Array(TasklistRefSchema, { description: "Attach the task to tasklists/sections" }),

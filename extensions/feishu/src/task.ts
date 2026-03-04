@@ -778,7 +778,8 @@ export function registerFeishuTaskTools(api: OpenClawPluginApi) {
   registerTaskTool<CreateTaskParams>(api, {
     name: "feishu_task_create",
     label: "Feishu Task Create",
-    description: "Create a Feishu task (task v2)",
+    description:
+      "Create a Feishu task (task v2). CRITICAL: (1) Always include members with role=assignee using the sender's open_id from Conversation info, or the task will be invisible to the user. (2) due.timestamp must be UTC milliseconds — subtract 8h from CST before converting.",
     parameters: CreateTaskSchema,
     run: async ({ client }, params) => createTask(client, params),
   });
@@ -786,7 +787,8 @@ export function registerFeishuTaskTools(api: OpenClawPluginApi) {
   registerTaskTool<CreateSubtaskParams>(api, {
     name: "feishu_task_subtask_create",
     label: "Feishu Task Subtask Create",
-    description: "Create a Feishu subtask under a parent task (task v2)",
+    description:
+      "Create a Feishu subtask under a parent task (task v2). CRITICAL: (1) Always include members with role=assignee using the sender's open_id from Conversation info. (2) due.timestamp must be UTC milliseconds.",
     parameters: CreateSubtaskSchema,
     run: async ({ client }, params) => createSubtask(client, params),
   });

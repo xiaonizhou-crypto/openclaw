@@ -18,6 +18,7 @@ const {
   resolveKimiModel,
   resolveKimiBaseUrl,
   extractKimiCitations,
+  resolveSearxngConfig,
 } = __testing;
 
 describe("web_search perplexity baseUrl defaults", () => {
@@ -320,5 +321,22 @@ describe("extractKimiCitations", () => {
         ],
       }).toSorted(),
     ).toEqual(["https://example.com/a", "https://example.com/b", "https://example.com/c"]);
+  });
+});
+
+describe("resolveSearxngConfig", () => {
+  it("returns empty object when search config is undefined", () => {
+    expect(resolveSearxngConfig(undefined)).toEqual({});
+  });
+
+  it("returns empty object when searxng key is absent", () => {
+    expect(resolveSearxngConfig({} as Parameters<typeof resolveSearxngConfig>[0])).toEqual({});
+  });
+
+  it("returns baseUrl from nested searxng config", () => {
+    const cfg = { searxng: { baseUrl: "http://localhost:8080" } } as Parameters<
+      typeof resolveSearxngConfig
+    >[0];
+    expect(resolveSearxngConfig(cfg)).toEqual({ baseUrl: "http://localhost:8080" });
   });
 });

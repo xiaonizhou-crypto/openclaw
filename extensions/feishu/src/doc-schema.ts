@@ -13,7 +13,7 @@ export const FeishuDocSchema = Type.Object({
   content: Type.Optional(
     Type.String({
       description:
-        "Markdown content (for write/append/insert/update_block/create_comment/create_and_write)",
+        "Markdown content (for write/append/insert/update_block/create_comment/create_and_write). IMPORTANT: Use proper markdown syntax for good formatting — # for h1, ## for h2, **bold**, - for bullets, 1. for numbered lists, --- for dividers, | for tables. Plain text without markdown syntax will render as ugly unformatted paragraphs.",
     }),
   ),
   title: Type.Optional(

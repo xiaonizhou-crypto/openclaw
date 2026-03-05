@@ -1,0 +1,20 @@
+diff --git a/dist/utils/validation.js b/dist/utils/validation.js
+index 8a2a5e2b337cb603a098bcc77014412b20404207..1ac2bcd2e70157a8c8fa54402b85302840b92c78 100644
+--- a/dist/utils/validation.js
++++ b/dist/utils/validation.js
+@@ -53,8 +53,14 @@ export function validateToolArguments(tool, toolCall) {
+     }
+     // Compile the schema
+     const validate = ajv.compile(tool.parameters);
++    // Handle double-encoded JSON: some models return arguments as a JSON string instead of an object.
++    // e.g. toolCall.arguments = '{"action":"append",...}' instead of {action:"append",...}
++    let rawArgs = toolCall.arguments;
++    if (typeof rawArgs === "string") {
++        try { rawArgs = JSON.parse(rawArgs); } catch { /* leave as-is; AJV will report the type error */ }
++    }
+     // Clone arguments so AJV can safely mutate for type coercion
+-    const args = structuredClone(toolCall.arguments);
++    const args = structuredClone(rawArgs);
+     // Validate the arguments (AJV mutates args in-place for type coercion)
+     if (validate(args)) {
+         return args;

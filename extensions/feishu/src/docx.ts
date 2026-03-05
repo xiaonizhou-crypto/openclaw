@@ -328,23 +328,36 @@ async function insertBlocksWithDescendant(
 }
 
 async function clearDocumentContent(client: Lark.Client, docToken: string) {
-  const existing = await client.docx.documentBlock.list({
-    path: { document_id: docToken },
-  });
-  if (existing.code !== 0) {
-    throw new Error(existing.msg);
-  }
+  // Paginate through ALL blocks to count top-level children accurately
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- SDK block type
+  const allItems: any[] = [];
+  let pageToken: string | undefined;
+  do {
+    const existing = await feishuRetry(() =>
+      client.docx.documentBlock.list({
+        path: { document_id: docToken },
+        ...(pageToken ? { params: { page_token: pageToken } } : {}),
+      }),
+    );
+    if (existing.code !== 0) {
+      throw new Error(existing.msg);
+    }
+    allItems.push(...(existing.data?.items ?? []));
+    pageToken = existing.data?.page_token;
+    if (pageToken) await feishuSleep(200);
+  } while (pageToken);
 
-  const childIds =
-    existing.data?.items
-      ?.filter((b) => b.parent_id === docToken && b.block_type !== 1)
-      .map((b) => b.block_id) ?? [];
+  const childIds = allItems
+    .filter((b) => b.parent_id === docToken && b.block_type !== 1)
+    .map((b) => b.block_id);
 
   if (childIds.length > 0) {
-    const res = await client.docx.documentBlockChildren.batchDelete({
-      path: { document_id: docToken, block_id: docToken },
-      data: { start_index: 0, end_index: childIds.length },
-    });
+    const res = await feishuRetry(() =>
+      client.docx.documentBlockChildren.batchDelete({
+        path: { document_id: docToken, block_id: docToken },
+        data: { start_index: 0, end_index: childIds.length },
+      }),
+    );
     if (res.code !== 0) {
       throw new Error(res.msg);
     }

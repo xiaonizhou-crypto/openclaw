@@ -62,6 +62,8 @@ Out of scope for this snapshot:
 
 ## Theme packs: one kernel, many worlds
 
+**Same kernel, different worlds.**
+
 OpenClaw's governed-task direction uses a **neutral governance kernel** first, then layers theme packs on top for display.
 
 Theme packs are display-only. They may change:
@@ -88,8 +90,28 @@ Theme packs must **not** change:
 
 ### Current supported themes
 
-- **default** — neutral control-plane naming for governed tasks
-- **celestial-court** — a celestial governance skin on the same kernel, currently wired into governed-task UI
+- **default** — the neutral kernel-facing presentation of governed tasks
+- **celestial-court** — the first live theme pack wired into governed-task UI
+
+### Celestial Court
+
+`celestial-court` is the first theme pack actually connected to UI.
+It represents **classical governance, hierarchy, legitimacy, and order** on top of the same governed-task kernel.
+It does **not** change any kernel logic — only the display layer.
+
+Minimal role mapping:
+
+| Neutral role | Celestial Court |
+| --- | --- |
+| governor | 玉帝 |
+| planner | 太上老君 |
+| reviewer | 王母 |
+| dispatcher | 托塔李天王 |
+| auditor | 司命星君 |
+| observer | 千里眼 / 顺风耳 |
+| treasury | 财神 |
+| executor_fast | 哪吒 |
+| executor_heavy | 天蓬元帅 |
 
 ### Planned themes
 

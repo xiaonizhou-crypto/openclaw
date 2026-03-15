@@ -34,7 +34,21 @@ Role mapping:
 - auditor → Auditor
 
 ### celestial-court
-Celestial narrative on top of the same kernel.
+Positioning: a classical governance skin for teams that want hierarchy, legitimacy, approval, and order to read clearly in the UI.
+
+What it is good at expressing:
+- governance
+- approval
+- hierarchy
+- order
+- legitimacy of handoff and review
+
+What it is not allowed to change:
+- rules
+- state machine
+- approval policy
+- dispatch logic
+- Feishu intake logic
 
 Role mapping:
 - governor → 玉帝

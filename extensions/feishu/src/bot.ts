@@ -17,6 +17,7 @@ import { createFeishuClient } from "./client.js";
 import { tryRecordMessage, tryRecordMessagePersistent } from "./dedup.js";
 import { maybeCreateDynamicAgent } from "./dynamic-agent.js";
 import { normalizeFeishuExternalKey } from "./external-keys.js";
+import { classifyFeishuGovernanceMessage } from "./governance-intake.js";
 import { downloadMessageResourceFeishu } from "./media.js";
 import { extractMentionTargets, isMentionForwardRequest } from "./mention.js";
 import {
@@ -29,6 +30,7 @@ import { parsePostContent } from "./post.js";
 import { createFeishuReplyDispatcher } from "./reply-dispatcher.js";
 import { getFeishuRuntime } from "./runtime.js";
 import { getMessageFeishu, sendMessageFeishu } from "./send.js";
+import { createGovernedTask } from "../../../src/tasks/store.js";
 import type { FeishuMessageContext, FeishuMediaInfo, ResolvedFeishuAccount } from "./types.js";
 import type { DynamicAgentCreationConfig } from "./types.js";
 
@@ -1215,6 +1217,58 @@ export async function handleFeishuMessage(params: {
     // System events are prepended to future prompts and can be misread as
     // authoritative transcript turns.
     log(`feishu[${account.accountId}]: ${inboundLabel}: ${preview}`);
+
+    const governanceRoute = classifyFeishuGovernanceMessage(ctx.content);
+    if (governanceRoute.mode === "governed-task") {
+      const createdTask = createGovernedTask({
+        title: governanceRoute.title,
+        sourceChannel: "feishu",
+        sourceSessionKey: route.sessionKey,
+        sourceThreadId: ctx.threadId ?? null,
+        sourceMessageId: ctx.messageId,
+        intentType: governanceRoute.intentType,
+        riskLevel: governanceRoute.riskLevel,
+        summary: governanceRoute.summary,
+        currentOwner: governanceRoute.requiresApproval ? "reviewer" : "planner",
+        state: governanceRoute.requiresApproval ? "awaiting_human" : "new",
+        approvalStatus: governanceRoute.requiresApproval ? "pending" : "not_needed",
+        labels: ["feishu", governanceRoute.reason],
+        auditEvents: [
+          {
+            id: `evt-${Date.now()}-created`,
+            at: Date.now(),
+            actorKind: "system",
+            actorId: "feishu-intake",
+            type: "task.created",
+            summary: "Task created from Feishu governed intake.",
+          },
+          {
+            id: `evt-${Date.now()}-classified`,
+            at: Date.now(),
+            actorKind: "system",
+            actorId: "feishu-intake",
+            type: governanceRoute.requiresApproval ? "approval.requested" : "task.classified",
+            summary: governanceRoute.requiresApproval
+              ? "Marked as awaiting human approval due to risk rules."
+              : "Classified as governed task and queued for planning.",
+          },
+        ],
+      });
+      await sendMessageFeishu({
+        cfg,
+        to: `chat:${ctx.chatId}`,
+        text: governanceRoute.requiresApproval
+          ? `已创建治理任务 ${createdTask.id}：${createdTask.title}\n当前状态：awaiting_human\n原因：命中高风险规则，进入审批队列。`
+          : `已创建治理任务 ${createdTask.id}：${createdTask.title}\n当前状态：new\n已进入 clawOS 任务看板。`,
+        replyToMessageId: ctx.messageId,
+        replyInThread: Boolean(ctx.threadId),
+        accountId: account.accountId,
+      });
+      log(
+        `feishu[${account.accountId}]: governed task created id=${createdTask.id} approval=${createdTask.approvalStatus}`,
+      );
+      return;
+    }
 
     // Resolve media from message
     const mediaMaxBytes = (feishuCfg?.mediaMaxMb ?? 30) * 1024 * 1024; // 30MB default

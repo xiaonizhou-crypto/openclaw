@@ -1,4 +1,4 @@
-import { Type } from "@sinclair/typebox";
+import { Static, Type } from "@sinclair/typebox";
 import { NonEmptyString } from "./primitives.js";
 
 export const TaskRiskLevelSchema = Type.Union([
@@ -93,6 +93,48 @@ export const TasksGetParamsSchema = Type.Object(
   { additionalProperties: false },
 );
 
+export const TasksCreateParamsSchema = Type.Object(
+  {
+    title: NonEmptyString,
+    sourceChannel: NonEmptyString,
+    sourceSessionKey: Type.Optional(Type.Union([Type.String(), Type.Null()])),
+    sourceThreadId: Type.Optional(Type.Union([Type.String(), Type.Null()])),
+    sourceMessageId: Type.Optional(Type.Union([Type.String(), Type.Null()])),
+    intentType: NonEmptyString,
+    riskLevel: TaskRiskLevelSchema,
+    summary: Type.Optional(Type.Union([Type.String(), Type.Null()])),
+    plan: Type.Optional(Type.Union([Type.String(), Type.Null()])),
+    reviewerNote: Type.Optional(Type.Union([Type.String(), Type.Null()])),
+    labels: Type.Optional(Type.Array(NonEmptyString)),
+    currentOwner: Type.Optional(NonEmptyString),
+    state: Type.Optional(TaskStateSchema),
+    approvalStatus: Type.Optional(TaskApprovalStatusSchema),
+  },
+  { additionalProperties: false },
+);
+
+export const TasksUpdateParamsSchema = Type.Object(
+  {
+    taskId: NonEmptyString,
+    patch: Type.Object(
+      {
+        title: Type.Optional(NonEmptyString),
+        summary: Type.Optional(Type.Union([Type.String(), Type.Null()])),
+        plan: Type.Optional(Type.Union([Type.String(), Type.Null()])),
+        reviewerNote: Type.Optional(Type.Union([Type.String(), Type.Null()])),
+        riskLevel: Type.Optional(TaskRiskLevelSchema),
+        state: Type.Optional(TaskStateSchema),
+        approvalStatus: Type.Optional(TaskApprovalStatusSchema),
+        currentOwner: Type.Optional(NonEmptyString),
+        labels: Type.Optional(Type.Array(NonEmptyString)),
+      },
+      { additionalProperties: false },
+    ),
+    auditSummary: Type.Optional(Type.String()),
+  },
+  { additionalProperties: false },
+);
+
 export const TasksListResultSchema = Type.Object(
   {
     path: NonEmptyString,
@@ -126,9 +168,11 @@ export type TaskState =
   | "blocked"
   | "completed"
   | "cancelled";
-export type TaskAuditEvent = typeof TaskAuditEventSchema.static;
-export type GovernedTask = typeof GovernedTaskSchema.static;
-export type TasksListParams = typeof TasksListParamsSchema.static;
-export type TasksGetParams = typeof TasksGetParamsSchema.static;
-export type TasksListResult = typeof TasksListResultSchema.static;
-export type TasksGetResult = typeof TasksGetResultSchema.static;
+export type TaskAuditEvent = Static<typeof TaskAuditEventSchema>;
+export type GovernedTask = Static<typeof GovernedTaskSchema>;
+export type TasksListParams = Static<typeof TasksListParamsSchema>;
+export type TasksGetParams = Static<typeof TasksGetParamsSchema>;
+export type TasksCreateParams = Static<typeof TasksCreateParamsSchema>;
+export type TasksUpdateParams = Static<typeof TasksUpdateParamsSchema>;
+export type TasksListResult = Static<typeof TasksListResultSchema>;
+export type TasksGetResult = Static<typeof TasksGetResultSchema>;

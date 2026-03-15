@@ -1,7 +1,8 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import type { GovernedTask, TasksGetResult, TasksListResult } from "../shared/task-types.js";
+import { randomUUID } from "node:crypto";
+import type { GovernedTask, TaskAuditEvent, TasksGetResult, TasksListResult } from "../shared/task-types.js";
 
 const TASKS_DIR = path.join(os.homedir(), ".openclaw", "governance");
 const TASKS_FILE = path.join(TASKS_DIR, "tasks.json");
@@ -209,4 +210,103 @@ export function getGovernedTask(taskId: string): TasksGetResult {
     task: tasks.find((task) => task.id === normalized) ?? null,
     generatedAt: Date.now(),
   };
+}
+
+function saveGovernedTasks(tasks: GovernedTask[]): void {
+  ensureStore();
+  fs.writeFileSync(TASKS_FILE, JSON.stringify({ tasks: [...tasks].sort(compareTasks) }, null, 2));
+}
+
+export function createGovernedTask(input: {
+  title: string;
+  sourceChannel: string;
+  sourceSessionKey?: string | null;
+  sourceThreadId?: string | null;
+  sourceMessageId?: string | null;
+  intentType: string;
+  riskLevel: GovernedTask["riskLevel"];
+  summary?: string | null;
+  plan?: string | null;
+  reviewerNote?: string | null;
+  labels?: string[];
+  currentOwner?: string;
+  state?: GovernedTask["state"];
+  approvalStatus?: GovernedTask["approvalStatus"];
+  auditEvents?: TaskAuditEvent[];
+}): GovernedTask {
+  const tasks = loadGovernedTasks();
+  const now = Date.now();
+  const numericIds = tasks
+    .map((task) => Number(task.id.replace(/^T-/, "")))
+    .filter((value) => Number.isFinite(value));
+  const nextId = `T-${String((numericIds.length ? Math.max(...numericIds) : 1000) + 1)}`;
+  const created: GovernedTask = {
+    id: nextId,
+    title: input.title.trim(),
+    sourceChannel: input.sourceChannel.trim(),
+    sourceSessionKey: input.sourceSessionKey ?? null,
+    sourceThreadId: input.sourceThreadId ?? null,
+    sourceMessageId: input.sourceMessageId ?? null,
+    intentType: input.intentType.trim(),
+    riskLevel: input.riskLevel,
+    state: input.state ?? (input.approvalStatus === "pending" ? "awaiting_human" : "new"),
+    approvalStatus: input.approvalStatus ?? "not_needed",
+    currentOwner: input.currentOwner ?? (input.approvalStatus === "pending" ? "reviewer" : "intake"),
+    createdAt: now,
+    updatedAt: now,
+    summary: input.summary ?? null,
+    plan: input.plan ?? null,
+    reviewerNote: input.reviewerNote ?? null,
+    labels: input.labels ?? [],
+    artifacts: [],
+    auditEvents: input.auditEvents ?? [
+      {
+        id: randomUUID(),
+        at: now,
+        actorKind: "system",
+        actorId: "intake",
+        type: "task.created",
+        summary: "Task created from inbound governance intake.",
+      },
+    ],
+  };
+  tasks.push(created);
+  saveGovernedTasks(tasks);
+  return created;
+}
+
+export function updateGovernedTask(input: {
+  taskId: string;
+  patch: Partial<
+    Pick<
+      GovernedTask,
+      | "title"
+      | "summary"
+      | "plan"
+      | "reviewerNote"
+      | "riskLevel"
+      | "state"
+      | "approvalStatus"
+      | "currentOwner"
+      | "labels"
+      | "artifacts"
+    >
+  >;
+  auditEvent?: TaskAuditEvent;
+}): GovernedTask | null {
+  const tasks = loadGovernedTasks();
+  const index = tasks.findIndex((task) => task.id === input.taskId.trim());
+  if (index < 0) {
+    return null;
+  }
+  const current = tasks[index] as GovernedTask;
+  const updated: GovernedTask = {
+    ...current,
+    ...input.patch,
+    updatedAt: Date.now(),
+    auditEvents: input.auditEvent ? [...current.auditEvents, input.auditEvent] : current.auditEvents,
+  };
+  tasks[index] = updated;
+  saveGovernedTasks(tasks);
+  return updated;
 }

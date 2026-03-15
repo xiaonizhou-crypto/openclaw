@@ -142,10 +142,12 @@ import {
 } from "./sessions.js";
 import {
   GovernedTaskSchema,
+  TasksCreateParamsSchema,
   TasksGetParamsSchema,
   TasksGetResultSchema,
   TasksListParamsSchema,
   TasksListResultSchema,
+  TasksUpdateParamsSchema,
 } from "./tasks.js";
 import { PresenceEntrySchema, SnapshotSchema, StateVersionSchema } from "./snapshot.js";
 import {
@@ -207,6 +209,8 @@ export const ProtocolSchemas = {
   GovernedTask: GovernedTaskSchema,
   TasksListParams: TasksListParamsSchema,
   TasksGetParams: TasksGetParamsSchema,
+  TasksCreateParams: TasksCreateParamsSchema,
+  TasksUpdateParams: TasksUpdateParamsSchema,
   TasksListResult: TasksListResultSchema,
   TasksGetResult: TasksGetResultSchema,
   ConfigGetParams: ConfigGetParamsSchema,

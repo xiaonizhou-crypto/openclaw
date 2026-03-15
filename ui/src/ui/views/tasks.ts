@@ -115,9 +115,11 @@ function renderDetail(detail: TasksGetResult | null, loading: boolean) {
 
 export function renderTasks(props: TasksProps) {
   const tasks = props.result?.tasks ?? [];
+  const approvalQueue = tasks.filter((task) => task.state === "awaiting_human");
   return html`
     <section class="grid grid-cols-2" style="align-items: start;">
-      <section class="card">
+      <section>
+        <section class="card">
         <div class="row" style="justify-content: space-between;">
           <div>
             <div class="card-title">Governed Tasks</div>
@@ -141,6 +143,30 @@ export function renderTasks(props: TasksProps) {
             ? html`<div class="muted">No governed tasks yet.</div>`
             : tasks.map((task) => renderTaskRow(task, props.selectedId, props.onSelect))}
         </div>
+        </section>
+
+        <section class="card" style="margin-top: 14px;">
+          <div class="card-title">Approval Queue</div>
+          <div class="card-sub">Tasks currently waiting for human approval.</div>
+          <div style="margin-top: 12px; display: grid; gap: 10px;">
+            ${approvalQueue.length === 0
+              ? html`<div class="muted">No tasks are awaiting human approval.</div>`
+              : approvalQueue.map(
+                  (task) => html`
+                    <button class="list-item" @click=${() => props.onSelect(task.id)}>
+                      <div class="row" style="justify-content: space-between; align-items: flex-start; gap: 12px;">
+                        <div>
+                          <div class="mono" style="font-size: 12px;">${task.id}</div>
+                          <div style="font-weight: 600; margin-top: 4px;">${task.title}</div>
+                        </div>
+                        ${renderRiskPill(task)}
+                      </div>
+                      <div class="muted" style="margin-top: 8px;">owner ${task.currentOwner} · approval ${task.approvalStatus}</div>
+                    </button>
+                  `,
+                )}
+          </div>
+        </section>
       </section>
 
       ${renderDetail(props.detail, props.detailLoading)}

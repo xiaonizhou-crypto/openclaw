@@ -190,6 +190,8 @@ import {
   SessionsUsageParamsSchema,
   type GovernedTask,
   GovernedTaskSchema,
+  type TasksCreateParams,
+  TasksCreateParamsSchema,
   type TasksGetParams,
   TasksGetParamsSchema,
   type TasksGetResult,
@@ -198,6 +200,8 @@ import {
   TasksListParamsSchema,
   type TasksListResult,
   TasksListResultSchema,
+  type TasksUpdateParams,
+  TasksUpdateParamsSchema,
   type ShutdownEvent,
   ShutdownEventSchema,
   type SkillsBinsParams,
@@ -325,6 +329,8 @@ export const validateSessionsUsageParams =
   ajv.compile<SessionsUsageParams>(SessionsUsageParamsSchema);
 export const validateTasksListParams = ajv.compile<TasksListParams>(TasksListParamsSchema);
 export const validateTasksGetParams = ajv.compile<TasksGetParams>(TasksGetParamsSchema);
+export const validateTasksCreateParams = ajv.compile<TasksCreateParams>(TasksCreateParamsSchema);
+export const validateTasksUpdateParams = ajv.compile<TasksUpdateParams>(TasksUpdateParamsSchema);
 export const validateConfigGetParams = ajv.compile<ConfigGetParams>(ConfigGetParamsSchema);
 export const validateConfigSetParams = ajv.compile<ConfigSetParams>(ConfigSetParamsSchema);
 export const validateConfigApplyParams = ajv.compile<ConfigApplyParams>(ConfigApplyParamsSchema);

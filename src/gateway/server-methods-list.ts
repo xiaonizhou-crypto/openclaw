@@ -60,6 +60,8 @@ const BASE_METHODS = [
   "sessions.compact",
   "tasks.list",
   "tasks.get",
+  "tasks.create",
+  "tasks.update",
   "last-heartbeat",
   "set-heartbeats",
   "wake",

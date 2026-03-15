@@ -44,6 +44,8 @@ export const TaskAuditEventSchema = Type.Object(
       Type.Literal("approval.requested"),
       Type.Literal("approval.granted"),
       Type.Literal("approval.rejected"),
+      Type.Literal("feishu.notified"),
+      Type.Literal("feishu.notify_failed"),
       Type.Literal("task.dispatched"),
       Type.Literal("task.started"),
       Type.Literal("task.blocked"),

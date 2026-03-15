@@ -32,6 +32,8 @@ export type TaskAuditEvent = {
     | "approval.requested"
     | "approval.granted"
     | "approval.rejected"
+    | "feishu.notified"
+    | "feishu.notify_failed"
     | "task.dispatched"
     | "task.started"
     | "task.blocked"

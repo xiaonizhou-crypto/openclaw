@@ -27,7 +27,7 @@ async function maybeNotifyFeishuTaskDecision(params: {
 }) {
   const task = params.task;
   if (!task || task.sourceChannel !== "feishu" || !task.sourceTarget?.trim()) {
-    return;
+    return task;
   }
   try {
     await sendMessageFeishu({
@@ -41,8 +41,34 @@ async function maybeNotifyFeishuTaskDecision(params: {
           ? `治理任务 ${task.id} 已批准。\n当前状态：${task.state}\n当前负责人：${task.currentOwner}`
           : `治理任务 ${task.id} 已打回。\n当前状态：${task.state}\n当前负责人：${task.currentOwner}`,
     });
-  } catch {
-    // Keep approval path non-blocking even if notification delivery fails.
+    return updateGovernedTask({
+      taskId: task.id,
+      patch: {},
+      auditEvent: {
+        id: randomUUID(),
+        at: Date.now(),
+        actorKind: "system",
+        actorId: "feishu-notifier",
+        type: "feishu.notified",
+        summary:
+          params.action === "approved"
+            ? "Approval result notification delivered to Feishu."
+            : "Rejection result notification delivered to Feishu.",
+      },
+    });
+  } catch (err) {
+    return updateGovernedTask({
+      taskId: task.id,
+      patch: {},
+      auditEvent: {
+        id: randomUUID(),
+        at: Date.now(),
+        actorKind: "system",
+        actorId: "feishu-notifier",
+        type: "feishu.notify_failed",
+        summary: `Failed to deliver Feishu decision notification: ${String(err)}`,
+      },
+    });
   }
 }
 
@@ -156,8 +182,8 @@ export const tasksHandlers: GatewayRequestHandlers = {
       respond(false, undefined, errorShape(ErrorCodes.NOT_FOUND, `task not found: ${p.taskId}`));
       return;
     }
-    await maybeNotifyFeishuTaskDecision({ task: updated, action: "approved" });
-    respond(true, updated, undefined);
+    const finalTask = (await maybeNotifyFeishuTaskDecision({ task: updated, action: "approved" })) ?? updated;
+    respond(true, finalTask, undefined);
   },
   "tasks.reject": async ({ params, respond }) => {
     if (!validateTasksDecisionParams(params)) {
@@ -177,7 +203,7 @@ export const tasksHandlers: GatewayRequestHandlers = {
       respond(false, undefined, errorShape(ErrorCodes.NOT_FOUND, `task not found: ${p.taskId}`));
       return;
     }
-    await maybeNotifyFeishuTaskDecision({ task: updated, action: "rejected" });
-    respond(true, updated, undefined);
+    const finalTask = (await maybeNotifyFeishuTaskDecision({ task: updated, action: "rejected" })) ?? updated;
+    respond(true, finalTask, undefined);
   },
 };

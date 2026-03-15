@@ -46,6 +46,8 @@ export type GovernedTask = {
   sourceSessionKey?: string | null;
   sourceThreadId?: string | null;
   sourceMessageId?: string | null;
+  sourceTarget?: string | null;
+  sourceAccountId?: string | null;
   intentType: string;
   riskLevel: TaskRiskLevel;
   state: TaskState;

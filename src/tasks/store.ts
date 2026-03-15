@@ -16,6 +16,8 @@ function seedTasks(now = Date.now()): GovernedTask[] {
       sourceSessionKey: "main",
       sourceThreadId: null,
       sourceMessageId: null,
+      sourceTarget: "chat:demo-feishu",
+      sourceAccountId: null,
       intentType: "project-design",
       riskLevel: "medium",
       state: "planned",
@@ -62,6 +64,8 @@ function seedTasks(now = Date.now()): GovernedTask[] {
       sourceSessionKey: "main",
       sourceThreadId: null,
       sourceMessageId: null,
+      sourceTarget: "chat:demo-feishu",
+      sourceAccountId: null,
       intentType: "workflow",
       riskLevel: "high",
       state: "awaiting_human",
@@ -100,6 +104,8 @@ function seedTasks(now = Date.now()): GovernedTask[] {
       sourceSessionKey: "main",
       sourceThreadId: null,
       sourceMessageId: null,
+      sourceTarget: null,
+      sourceAccountId: null,
       intentType: "ui",
       riskLevel: "low",
       state: "running",
@@ -223,6 +229,8 @@ export function createGovernedTask(input: {
   sourceSessionKey?: string | null;
   sourceThreadId?: string | null;
   sourceMessageId?: string | null;
+  sourceTarget?: string | null;
+  sourceAccountId?: string | null;
   intentType: string;
   riskLevel: GovernedTask["riskLevel"];
   summary?: string | null;
@@ -247,6 +255,8 @@ export function createGovernedTask(input: {
     sourceSessionKey: input.sourceSessionKey ?? null,
     sourceThreadId: input.sourceThreadId ?? null,
     sourceMessageId: input.sourceMessageId ?? null,
+    sourceTarget: input.sourceTarget ?? null,
+    sourceAccountId: input.sourceAccountId ?? null,
     intentType: input.intentType.trim(),
     riskLevel: input.riskLevel,
     state: input.state ?? (input.approvalStatus === "pending" ? "awaiting_human" : "new"),

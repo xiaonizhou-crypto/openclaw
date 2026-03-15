@@ -69,8 +69,21 @@ async function decideTask(state: TasksState, method: "tasks.approve" | "tasks.re
   state.tasksError = null;
   try {
     await state.client.request(method, { taskId, note });
+    const currentQuery = state.tasksQuery;
+    state.tasksQuery = "";
     await loadTasks(state);
-    await loadTaskDetail(state, taskId);
+    state.tasksQuery = currentQuery;
+    await loadTasks(state);
+    const stillExists = state.tasksResult?.tasks.some((task) => task.id === taskId) ?? false;
+    if (stillExists) {
+      await loadTaskDetail(state, taskId);
+    } else {
+      state.taskDetail = null;
+      state.tasksSelectedId = state.tasksResult?.tasks[0]?.id ?? null;
+      if (state.tasksSelectedId) {
+        await loadTaskDetail(state, state.tasksSelectedId);
+      }
+    }
   } catch (err) {
     state.tasksError = String(err);
   } finally {

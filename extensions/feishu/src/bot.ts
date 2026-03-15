@@ -1226,6 +1226,8 @@ export async function handleFeishuMessage(params: {
         sourceSessionKey: route.sessionKey,
         sourceThreadId: ctx.threadId ?? null,
         sourceMessageId: ctx.messageId,
+        sourceTarget: `chat:${ctx.chatId}`,
+        sourceAccountId: account.accountId,
         intentType: governanceRoute.intentType,
         riskLevel: governanceRoute.riskLevel,
         summary: governanceRoute.summary,

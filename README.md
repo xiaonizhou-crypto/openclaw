@@ -25,6 +25,46 @@ If you want a personal, single-user assistant that feels local, fast, and always
 
 [Website](https://openclaw.ai) · [Docs](https://docs.openclaw.ai) · [Vision](VISION.md) · [DeepWiki](https://deepwiki.com/openclaw/openclaw) · [Getting Started](https://docs.openclaw.ai/start/getting-started) · [Updating](https://docs.openclaw.ai/install/updating) · [Showcase](https://docs.openclaw.ai/start/showcase) · [FAQ](https://docs.openclaw.ai/help/faq) · [Wizard](https://docs.openclaw.ai/start/wizard) · [Nix](https://github.com/openclaw/nix-openclaw) · [Docker](https://docs.openclaw.ai/install/docker) · [Discord](https://discord.gg/clawd)
 
+## Theme packs: one kernel, many worlds
+
+OpenClaw's governed-task direction uses a **neutral governance kernel** first, then layers theme packs on top for display.
+
+Theme packs are display-only. They may change:
+
+- role labels
+- role descriptions
+- icons / avatars
+- navigation labels
+- state aliases
+- panel copy
+- UI tokens
+- narrative copy
+
+Theme packs must **not** change:
+
+- task state machine
+- approval rules
+- risk policy
+- dispatch routing
+- Feishu intake split
+- gateway methods
+- task schema
+- audit logic
+
+### Current supported themes
+
+- **default** — neutral control-plane naming for governed tasks
+- **celestial-court** — a celestial governance skin on the same kernel
+
+### Planned themes
+
+- **Strategist Court** — advisory chamber framing for plans, reviews, and handoffs
+- **Grand Manor** — household governance framing for roles, hierarchy, and records
+- **Mission Control** — flight-ops / command-center framing for high-visibility coordination
+- **Urban Beasts** — city-creature framing for sharper, contemporary team energy
+- **Court Squad** — lighter team-court framing for highly social orchestration demos
+- **Investigation Bureau** — casework / detective framing for traceability-heavy workflows
+
 Preferred setup: run the onboarding wizard (`openclaw onboard`) in your terminal.
 The wizard guides you step by step through setting up the gateway, workspace, channels, and skills. The CLI wizard is the recommended path and works on **macOS, Linux, and Windows (via WSL2; strongly recommended)**.
 Works with npm, pnpm, or bun.

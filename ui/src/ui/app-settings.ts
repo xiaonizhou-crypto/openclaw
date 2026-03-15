@@ -35,6 +35,8 @@ import {
   tabFromPath,
   type Tab,
 } from "./navigation.ts";
+import { resolveThemePack } from "../../../src/themes/index.js";
+import type { ThemePack, ThemePackId } from "../../../src/themes/types.js";
 import { saveSettings, type UiSettings } from "./storage.ts";
 import { startThemeTransition, type ThemeTransitionContext } from "./theme-transition.ts";
 import { resolveTheme, type ResolvedTheme, type ThemeMode } from "./theme.ts";
@@ -44,6 +46,8 @@ type SettingsHost = {
   settings: UiSettings;
   password?: string;
   theme: ThemeMode;
+  themePackId: ThemePackId;
+  themePack: ThemePack;
   themeResolved: ResolvedTheme;
   applySessionKey: string;
   sessionKey: string;
@@ -72,6 +76,10 @@ export function applySettings(host: SettingsHost, next: UiSettings) {
   if (next.theme !== host.theme) {
     host.theme = next.theme;
     applyResolvedTheme(host, resolveTheme(next.theme));
+  }
+  if (next.themePack !== host.themePackId) {
+    host.themePackId = next.themePack;
+    host.themePack = resolveThemePack(next.themePack);
   }
   host.applySessionKey = host.settings.lastActiveSessionKey;
 }

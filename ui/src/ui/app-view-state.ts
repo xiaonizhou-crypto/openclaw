@@ -8,6 +8,7 @@ import type { SkillMessage } from "./controllers/skills.ts";
 import type { GatewayBrowserClient, GatewayHelloOk } from "./gateway.ts";
 import type { Tab } from "./navigation.ts";
 import type { UiSettings } from "./storage.ts";
+import type { ThemePack, ThemePackId } from "../../../src/themes/types.js";
 import type { ThemeTransitionContext } from "./theme-transition.ts";
 import type { ThemeMode } from "./theme.ts";
 import type {
@@ -44,6 +45,8 @@ export type AppViewState = {
   basePath: string;
   connected: boolean;
   theme: ThemeMode;
+  themePackId: ThemePackId;
+  themePack: ThemePack;
   themeResolved: "light" | "dark";
   hello: GatewayHelloOk | null;
   lastError: string | null;

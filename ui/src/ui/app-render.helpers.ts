@@ -74,10 +74,10 @@ export function renderTab(state: AppViewState, tab: Tab) {
         }
         state.setTab(tab);
       }}
-      title=${titleForTab(tab)}
+      title=${tab === "tasks" ? state.themePack.navigation.tasks : titleForTab(tab)}
     >
       <span class="nav-item__icon" aria-hidden="true">${icons[iconForTab(tab)]}</span>
-      <span class="nav-item__text">${titleForTab(tab)}</span>
+      <span class="nav-item__text">${tab === "tasks" ? state.themePack.navigation.tasks : titleForTab(tab)}</span>
     </a>
   `;
 }

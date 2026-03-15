@@ -56,6 +56,7 @@ import { loadLogs } from "./controllers/logs.ts";
 import { loadNodes } from "./controllers/nodes.ts";
 import { loadPresence } from "./controllers/presence.ts";
 import { deleteSessionAndRefresh, loadSessions, patchSession } from "./controllers/sessions.ts";
+import { resolveThemePack } from "../../../src/themes/index.js";
 import { approveTask, loadTaskDetail, loadTasks, rejectTask } from "./controllers/tasks.ts";
 import {
   installSkill,
@@ -323,8 +324,12 @@ export function renderApp(state: AppViewState) {
         }
         <section class="content-header">
           <div>
-            ${state.tab === "usage" ? nothing : html`<div class="page-title">${titleForTab(state.tab)}</div>`}
-            ${state.tab === "usage" ? nothing : html`<div class="page-sub">${subtitleForTab(state.tab)}</div>`}
+            ${state.tab === "usage"
+              ? nothing
+              : html`<div class="page-title">${state.tab === "tasks" ? state.themePack.navigation.tasks : titleForTab(state.tab)}</div>`}
+            ${state.tab === "usage"
+              ? nothing
+              : html`<div class="page-sub">${state.tab === "tasks" ? state.themePack.panelCopy.tasksSubtitle : subtitleForTab(state.tab)}</div>`}
           </div>
           <div class="page-meta">
             ${state.lastError ? html`<div class="pill danger">${state.lastError}</div>` : nothing}
@@ -445,6 +450,8 @@ export function renderApp(state: AppViewState) {
         ${
           state.tab === "tasks"
             ? renderTasks({
+                themePack: state.themePack,
+                themePackId: state.themePackId,
                 loading: state.tasksLoading,
                 result: state.tasksResult,
                 error: state.tasksError,
@@ -455,6 +462,11 @@ export function renderApp(state: AppViewState) {
                 decisionBusy: state.tasksDecisionBusy,
                 onQueryChange: (next) => {
                   state.tasksQuery = next;
+                },
+                onThemeChange: (next) => {
+                  state.themePackId = next;
+                  state.themePack = resolveThemePack(next);
+                  state.applySettings({ ...state.settings, themePack: next });
                 },
                 onRefresh: () => loadTasks(state),
                 onSelect: (taskId) => {

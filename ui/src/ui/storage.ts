@@ -2,6 +2,7 @@ const KEY = "openclaw.control.settings.v1";
 
 import { isSupportedLocale } from "../i18n/index.ts";
 import { inferBasePathFromPathname, normalizeBasePath } from "./navigation.ts";
+import type { ThemePackId } from "../../../src/themes/types.js";
 import type { ThemeMode } from "./theme.ts";
 
 export type UiSettings = {
@@ -10,6 +11,7 @@ export type UiSettings = {
   sessionKey: string;
   lastActiveSessionKey: string;
   theme: ThemeMode;
+  themePack: ThemePackId;
   chatFocusMode: boolean;
   chatShowThinking: boolean;
   splitRatio: number; // Sidebar split ratio (0.4 to 0.7, default 0.6)
@@ -37,6 +39,7 @@ export function loadSettings(): UiSettings {
     sessionKey: "main",
     lastActiveSessionKey: "main",
     theme: "system",
+    themePack: "default",
     chatFocusMode: false,
     chatShowThinking: true,
     splitRatio: 0.6,
@@ -69,6 +72,10 @@ export function loadSettings(): UiSettings {
         parsed.theme === "light" || parsed.theme === "dark" || parsed.theme === "system"
           ? parsed.theme
           : defaults.theme,
+      themePack:
+        parsed.themePack === "default" || parsed.themePack === "celestial-court"
+          ? parsed.themePack
+          : defaults.themePack,
       chatFocusMode:
         typeof parsed.chatFocusMode === "boolean" ? parsed.chatFocusMode : defaults.chatFocusMode,
       chatShowThinking:
